@@ -22,6 +22,7 @@ plt.ioff()  # call .ion for interactive mode
 fig = plt.figure(num='Stock Analyzer')
 ax = plt.axes()
 fig.add_axes(ax)
+count_increase_points = 0
 
 for stock_file in stock_file_list:
     # Read csv
@@ -29,6 +30,14 @@ for stock_file in stock_file_list:
     with open(stock_file_path, 'r') as f:
         reader = csv.reader(f)
         data = np.asarray(list(reader))
+
+    # Keep data from 2018-01-01
+    try:
+        idx = np.where('2018-01-02' == data[:, 0])
+        print('idx: ' + str(idx[0][0]))
+        data = data[idx[0][0]:, :]
+    except:
+        pass
 
     # Delete row containing string null
     null_str = 'null'
@@ -49,6 +58,8 @@ for stock_file in stock_file_list:
     sufficient_price_increase_data = data[i_sufficient_price_increase+2]
 
     if len(sufficient_price_increase_data) > 0:
+        count_increase_points += len(sufficient_price_increase_data)
+        
         # Create stock image and csv in results directory
         result_csv_path = os.path.join(RESULTS_DIRECTORY_PATH, stock_file)
 
@@ -86,4 +97,5 @@ for stock_file in stock_file_list:
         ))
         result_fig_path = os.path.join(RESULTS_DIRECTORY_PATH, stock_file[:-3] + 'png')
         fig.savefig(result_fig_path)
+print('Sufficient increase data points: ' + str(count_increase_points))
 print('Done!')
